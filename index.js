@@ -1,10 +1,9 @@
-var webdriverio = require('webdriverio');
-var env = process.env;
+const webdriverio = require('webdriverio');
 
-var buildOptions = function(args){
-  var options = args.config, attr;
+const buildOptions = function(args){
+  const options = args.config;
 
-  for(attr in args){
+  for(const attr in args){
     if(!options[attr]){
     options[attr] = args[attr];
     }
@@ -15,11 +14,11 @@ var buildOptions = function(args){
   return options;
 };
 
-var SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
-  var options = buildOptions(args),
-      log = logger.create('webdriverio'),
-      self = this, 
-      browserRunning = false;
+const SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
+  const options = buildOptions(args);
+  const log = logger.create('webdriverio');
+  const self = this;
+  let browserRunning = false;
 
   baseBrowserDecorator(this);
 

@@ -1,5 +1,5 @@
 {
-  "name": "karma-selenium-launcher",
+  "name": "@saritasa/karma-selenium-launcher",
   "version": "1.0.1",
   "description": "A Karma plugin. Run tests on remote instance of Selenium",
   "main": "index.js",
@@ -9,11 +9,14 @@
   "dependencies": {
     "webdriverio": "^4.2.3"
   },
-  "author": "Mindy Kim",
+  "authors": [
+    "Mindy Kim",
+    "Konstantin Petryaev"
+  ],
   "license": "MIT",
-  "repository" : {
+  "repository": {
     "type": "git",
-    "url": "git@github.com:minsoju/karma-selenium-launcher.git"
+    "url": "git@github.com:saritasa/karma-selenium-launcher.git"
   },
   "devDependencies": {
     "grunt": "^1.0.1",

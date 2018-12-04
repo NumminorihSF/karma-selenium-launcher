@@ -5,7 +5,7 @@
 ## Installation
 
 ```shell
-npm install karma-selenium-launcher --save-dev
+npm install @saritasa/karma-selenium-launcher --save-dev
 ```
 
 ## Configuration

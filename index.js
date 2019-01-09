@@ -23,36 +23,40 @@ const SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
 
   this.name = 'selenium for ' + args.browserName;
 
-  this._closeSleniumBrowser = (done = () => {}) => {
-    log.info('Closing browser');
+  this._closeSleniumBrowser = (error, done) => {
+    log.info(`[${this.name}] Closing browser`);
     this.browser
       .end()
       .then(() => {
-        log.info('Browser closed');
-        this._done();
+        log.info(`[${this.name}] Browser closed`);
+        this._done(error);
         done();
       })
       .catch(error => {
-        log.error('Browser closed with error:\n' + error.message + '\n' + error.stack);
+        log.error(`[${this.name}] Browser closed with error:\n${error.message}\n${error.stack}`);
         this._done(error);
         done();
       });
   };
 
   this._start = (url) => {
-    log.info('Selenium browser started at http://' + options.host+ ':' + options.port + options.path);
+    log.info(`[${this.name}] Selenium browser starting at http://${options.host}:${options.port }${options.path}`);
     this.browser = webdriverio
       .remote(options)
       .init()
       .url(url)
       .then(() => {
+        log.info(`[${this.name}] Selenium browser started at http://${options.host}:${options.port }${options.path}`);
+
         browserRunning = true;
       })
       .catch(error => {
-        log.error('Browser error');
+        log.error(`[${this.name}] Browser error`);
         log.error(error);
-        this._closeSleniumBrowser();
+        this._closeSleniumBrowser(error, () => {});
       });
+
+    return this.browser;
   };
 
   this.on('kill', (done) => {
@@ -62,7 +66,7 @@ const SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
       return;
     }
 
-    this._closeSleniumBrowser(done);
+    this._closeSleniumBrowser(null, done);
   });
 };
 

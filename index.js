@@ -5,7 +5,7 @@ const buildOptions = function(args){
 
   for(const attr in args){
     if(!options[attr]){
-    options[attr] = args[attr];
+      options[attr] = args[attr];
     }
   }
   delete options['config'];
@@ -17,41 +17,52 @@ const buildOptions = function(args){
 const SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
   const options = buildOptions(args);
   const log = logger.create('webdriverio');
-  const self = this;
   let browserRunning = false;
 
   baseBrowserDecorator(this);
 
   this.name = 'selenium for ' + args.browserName;
 
-  this._start = function (url) {
-    log.info('Selenium browser started at http://' + options.host+ ':' + options.port + options.path);
-    self.browser = webdriverio
-      .remote(options)
-      .init()
-      .url(url)
-      .then(function(){
-        browserRunning = true;
-      });
-  };
-
-  this.on('kill', function(done){
-    if(!browserRunning){
-      process.nextTick(done);
-    }
-
-    self.browser
+  this._closeSleniumBrowser = (done = () => {}) => {
+    log.info('Closing browser');
+    this.browser
       .end()
-      .then(function(){
+      .then(() => {
         log.info('Browser closed');
-        self._done();
+        this._done();
         done();
       })
       .catch(error => {
         log.error('Browser closed with error:\n' + error.message + '\n' + error.stack);
-        self._done(error);
+        this._done(error);
         done();
       });
+  };
+
+  this._start = (url) => {
+    log.info('Selenium browser started at http://' + options.host+ ':' + options.port + options.path);
+    this.browser = webdriverio
+      .remote(options)
+      .init()
+      .url(url)
+      .then(() => {
+        browserRunning = true;
+      })
+      .catch(error => {
+        log.error('Browser error');
+        log.error(error);
+        this._closeSleniumBrowser();
+      });
+  };
+
+  this.on('kill', (done) => {
+    if(!browserRunning){
+      process.nextTick(done);
+
+      return;
+    }
+
+    this._closeSleniumBrowser(done);
   });
 };
 

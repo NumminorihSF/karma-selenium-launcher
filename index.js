@@ -5,7 +5,7 @@ const buildOptions = function(args){
 
   for(const attr in args){
     if(!options[attr]){
-    options[attr] = args[attr];
+      options[attr] = args[attr];
     }
   }
   delete options['config'];
@@ -24,34 +24,28 @@ const SeleniumBrowser = function (baseBrowserDecorator, args, logger) {
 
   this.name = 'selenium for ' + args.browserName;
 
-  this._start = function (url) {
+  this._start = async function (url) {
     log.info('Selenium browser started at http://' + options.host+ ':' + options.port + options.path);
-    self.browser = webdriverio
-      .remote(options)
-      .init()
-      .url(url)
-      .then(function(){
-        browserRunning = true;
-      });
+    self.browser = await webdriverio.remote(options);
+    await self.browser.url(url);
+    browserRunning = true;
   };
 
-  this.on('kill', function(done){
+  this.on('kill', async function(done){
     if(!browserRunning){
       process.nextTick(done);
     }
 
-    self.browser
-      .end()
-      .then(function(){
-        log.info('Browser closed');
-        self._done();
-        done();
-      })
-      .catch(error => {
-        log.error('Browser closed with error:\n' + error.message + '\n' + error.stack);
-        self._done(error);
-        done();
-      });
+    try {
+      await self.browser.end();
+      log.info('Browser closed');
+      self._done();
+      done();
+    } catch(error) {
+      log.error('Browser closed with error:\n' + error.message + '\n' + error.stack);
+      self._done(error);
+      done();
+    }
   });
 };
 
